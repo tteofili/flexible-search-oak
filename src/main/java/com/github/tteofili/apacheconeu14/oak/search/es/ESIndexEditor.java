@@ -21,19 +21,43 @@ import org.apache.jackrabbit.oak.api.PropertyState;
 import org.apache.jackrabbit.oak.plugins.index.IndexEditor;
 import org.apache.jackrabbit.oak.spi.commit.Editor;
 import org.apache.jackrabbit.oak.spi.state.NodeState;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.client.Client;
+
 
 /**
  * Demo code for indexing data into Elasticsearch
  */
-public class ElasticsearchIndexEditor implements IndexEditor {
+public class ESIndexEditor implements IndexEditor {
+
+
+    private final Client client;
+
+    public ESIndexEditor(Client client) {
+        this.client = client;
+    }
+
     @Override
-    public void enter(NodeState nodeState, NodeState nodeState2) throws CommitFailedException {
+    public void enter(NodeState before, NodeState after) throws CommitFailedException {
 
     }
 
     @Override
-    public void leave(NodeState nodeState, NodeState nodeState2) throws CommitFailedException {
+    public void leave(NodeState before, NodeState after) throws CommitFailedException {
+        String json = "{" +
+                "\"user\":\"kimchy\"," +
+                "\"postDate\":\"2013-01-30\"," +
+                "\"message\":\"trying out Elasticsearch\"" +
+                "}";
 
+        IndexResponse response = client.prepareIndex("twitter", "tweet")
+                .setSource(json)
+                .execute()
+                .actionGet();
+
+        if (response.isCreated()) {
+            // ok
+        }
     }
 
     @Override
@@ -42,7 +66,7 @@ public class ElasticsearchIndexEditor implements IndexEditor {
     }
 
     @Override
-    public void propertyChanged(PropertyState propertyState, PropertyState propertyState2) throws CommitFailedException {
+    public void propertyChanged(PropertyState before, PropertyState after) throws CommitFailedException {
 
     }
 
@@ -57,7 +81,7 @@ public class ElasticsearchIndexEditor implements IndexEditor {
     }
 
     @Override
-    public Editor childNodeChanged(String s, NodeState nodeState, NodeState nodeState2) throws CommitFailedException {
+    public Editor childNodeChanged(String s, NodeState before, NodeState after) throws CommitFailedException {
         return null;
     }
 

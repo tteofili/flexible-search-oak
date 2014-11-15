@@ -16,32 +16,18 @@
  */
 package com.github.tteofili.apacheconeu14.oak.search.es;
 
-import org.apache.jackrabbit.oak.spi.query.Cursor;
-import org.apache.jackrabbit.oak.spi.query.Filter;
-import org.apache.jackrabbit.oak.spi.query.QueryIndex;
-import org.apache.jackrabbit.oak.spi.state.NodeState;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 /**
- * Sample query index for Elasticsearch
+ * Utility class for ES
  */
-public class ElasticsearchQueryIndex implements QueryIndex {
-    @Override
-    public double getCost(Filter filter, NodeState nodeState) {
-        return 0;
+public class ESUtils {
+
+    public static Client getClient() {
+        return new TransportClient()
+                .addTransportAddress(new InetSocketTransportAddress("127.0.0.1", 9300));
     }
 
-    @Override
-    public Cursor query(Filter filter, NodeState nodeState) {
-        return null;
-    }
-
-    @Override
-    public String getPlan(Filter filter, NodeState nodeState) {
-        return null;
-    }
-
-    @Override
-    public String getIndexName() {
-        return null;
-    }
 }
