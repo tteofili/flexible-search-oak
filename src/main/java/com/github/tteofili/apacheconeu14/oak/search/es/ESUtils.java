@@ -25,9 +25,11 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
  */
 public class ESUtils {
 
+    private static final Client client = new TransportClient()
+            .addTransportAddress(new InetSocketTransportAddress("127.0.0.1", 9300));
+
     public static Client getClient() {
-        return new TransportClient()
-                .addTransportAddress(new InetSocketTransportAddress("127.0.0.1", 9300));
+        return client;
     }
 
 }
