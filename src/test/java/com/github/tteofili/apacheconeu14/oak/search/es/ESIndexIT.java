@@ -71,7 +71,7 @@ import static org.mockito.Mockito.mock;
 /**
  * Testcase for {@link com.github.tteofili.apacheconeu14.oak.search.es.ESIndexEditor}
  */
-public class ESIndexEditorTest {
+public class ESIndexIT {
 
     protected NodeStore store;
     protected EditorHook hook;
@@ -138,11 +138,6 @@ public class ESIndexEditorTest {
     public void tearDown() throws Exception {
 
     }
-
-    protected Root createRoot() throws LoginException, NoSuchWorkspaceException {
-        return repository.login(null, null).getLatestRoot();
-    }
-
 
     @Test
     public void testSingleNodeCreation() throws Exception {
