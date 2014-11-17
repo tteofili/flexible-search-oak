@@ -23,6 +23,10 @@ import org.apache.jackrabbit.oak.spi.commit.Editor;
 import org.apache.jackrabbit.oak.spi.state.NodeState;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.apache.jackrabbit.oak.commons.PathUtils.concat;
 
 
 /**
@@ -30,11 +34,28 @@ import org.elasticsearch.client.Client;
  */
 public class ESIndexEditor implements IndexEditor {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Client client;
+    private final ESIndexEditor parent;
+    private final String name;
+
+    private boolean changed;
+
+    private String path;
 
     public ESIndexEditor(Client client) {
         this.client = client;
+        this.path = "/";
+        parent = null;
+        name = null;
+    }
+
+    public ESIndexEditor(ESIndexEditor parent, String name) {
+        this.client = parent.client;
+        this.path = parent.path;
+        this.parent = parent;
+        this.name = name;
     }
 
     @Override
@@ -42,51 +63,65 @@ public class ESIndexEditor implements IndexEditor {
 
     }
 
+    public String getPath() {
+        if (path == null) { // => parent != null
+            path = concat(parent.getPath(), name);
+        }
+        return path;
+    }
+
     @Override
     public void leave(NodeState before, NodeState after) throws CommitFailedException {
-        String json = "{" +
-                "\"user\":\"kimchy\"," +
-                "\"postDate\":\"2013-01-30\"," +
-                "\"message\":\"trying out Elasticsearch\"" +
-                "}";
+        if (changed) {
+            StringBuilder json = new StringBuilder("{" +
+                    "\"path\":\"" + getPath() + "\"");
 
-        IndexResponse response = client.prepareIndex("twitter", "tweet")
-                .setSource(json)
-                .execute()
-                .actionGet();
+            for (PropertyState ps : after.getProperties()) {
+                json.append(",\"").append(ps.getName()).append("\":\"").append(ps.getValue(ps.getType())).append("\"");
+            }
+            json.append("}");
 
-        if (response.isCreated()) {
-            // ok
+
+            IndexResponse response = client.prepareIndex("oak", "node")
+                    .setSource(json.toString())
+                    .execute()
+                    .actionGet();
+
+            if (response.isCreated()) {
+                // ok
+                log.info("indexed doc {}", json);
+            }
         }
     }
 
     @Override
     public void propertyAdded(PropertyState propertyState) throws CommitFailedException {
-
+        changed = true;
     }
 
     @Override
     public void propertyChanged(PropertyState before, PropertyState after) throws CommitFailedException {
-
+        changed = true;
     }
 
     @Override
     public void propertyDeleted(PropertyState propertyState) throws CommitFailedException {
-
+        changed = true;
     }
 
     @Override
-    public Editor childNodeAdded(String s, NodeState nodeState) throws CommitFailedException {
-        return null;
+    public Editor childNodeAdded(String name, NodeState nodeState) throws CommitFailedException {
+        return new ESIndexEditor(this, name);
     }
 
     @Override
     public Editor childNodeChanged(String s, NodeState before, NodeState after) throws CommitFailedException {
-        return null;
+        return new ESIndexEditor(this, name);
     }
 
     @Override
     public Editor childNodeDeleted(String s, NodeState nodeState) throws CommitFailedException {
+        // TODO : implement deletion
         return null;
     }
 }
