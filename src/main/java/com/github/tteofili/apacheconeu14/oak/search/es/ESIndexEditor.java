@@ -46,14 +46,14 @@ public class ESIndexEditor implements IndexEditor {
 
     public ESIndexEditor(Client client) {
         this.client = client;
-        this.path = "/";
+        path = "/";
         parent = null;
         name = null;
     }
 
     public ESIndexEditor(ESIndexEditor parent, String name) {
         this.client = parent.client;
-        this.path = parent.path;
+        this.path = null;
         this.parent = parent;
         this.name = name;
     }
