@@ -75,7 +75,7 @@ public class ESIndexEditor implements IndexEditor {
         if (changed) {
             String source = jsonFromState(after);
 
-            IndexResponse response = client.prepareIndex("oak", "node")
+            IndexResponse response = client.prepareIndex("oak", "node", getPath())
                     .setSource(source)
                     .execute()
                     .actionGet();

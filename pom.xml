@@ -64,39 +64,27 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>oak-core</artifactId>
-            <version>${project.version}</version>
-            <classifier>tests</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.jackrabbit</groupId>
-          <artifactId>oak-jcr</artifactId>
-          <version>${project.version}</version>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.jackrabbit</groupId>
-          <artifactId>oak-jcr</artifactId>
-          <version>${project.version}</version>
-          <type>test-jar</type>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.jackrabbit</groupId>
-          <artifactId>jackrabbit-jcr-tests</artifactId>
-          <version>${jackrabbit.version}</version>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.jackrabbit</groupId>
-          <artifactId>jackrabbit-core</artifactId>
-          <version>${jackrabbit.version}</version>
-          <classifier>tests</classifier>
-          <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.jackrabbit</groupId>-->
+            <!--<artifactId>oak-core</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<classifier>tests</classifier>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+          <!--<groupId>org.apache.jackrabbit</groupId>-->
+          <!--<artifactId>oak-jcr</artifactId>-->
+          <!--<version>${project.version}</version>-->
+          <!--<scope>test</scope>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+          <!--<groupId>org.apache.jackrabbit</groupId>-->
+          <!--<artifactId>oak-jcr</artifactId>-->
+          <!--<version>${project.version}</version>-->
+          <!--<type>test-jar</type>-->
+          <!--<scope>test</scope>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -111,24 +99,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>1.9.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-test-framework</artifactId>
-            <version>${lucene.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>${lucene.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-            <version>${lucene.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -160,36 +130,6 @@
             <groupId>org.apache.jackrabbit</groupId>
             <artifactId>oak-commons</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-jcr-commons</artifactId>
-            <version>${jackrabbit.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Solr -->
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-core</artifactId>
-            <version>${lucene.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-jdk14</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <version>${lucene.version}</version>
             <scope>provided</scope>
         </dependency>
 
