@@ -73,25 +73,30 @@ public class ESIndexEditor implements IndexEditor {
     @Override
     public void leave(NodeState before, NodeState after) throws CommitFailedException {
         if (changed) {
-            StringBuilder json = new StringBuilder("{" +
-                    "\"path\":\"" + getPath() + "\"");
-
-            for (PropertyState ps : after.getProperties()) {
-                json.append(",\"").append(ps.getName()).append("\":\"").append(ps.getValue(ps.getType())).append("\"");
-            }
-            json.append("}");
-
+            String source = jsonFromState(after);
 
             IndexResponse response = client.prepareIndex("oak", "node")
-                    .setSource(json.toString())
+                    .setSource(source)
                     .execute()
                     .actionGet();
 
             if (response.isCreated()) {
-                // ok
-                log.info("indexed doc {}", json);
+                log.info("indexed doc {}", source);
             }
         }
+    }
+
+    private String jsonFromState(NodeState after) {
+        StringBuilder json = new StringBuilder("{" +
+                "\"path\":\"" + getPath() + "\"");
+
+        for (PropertyState ps : after.getProperties()) {
+            json.append(",\"").append(ps.getName()).append("\":\"").append(ps.getValue(ps.getType())).append("\"");
+        }
+        json.append("}");
+
+
+        return json.toString();
     }
 
     @Override
