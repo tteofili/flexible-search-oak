@@ -17,18 +17,12 @@
 package com.github.tteofili.apacheconeu14.oak.search.es;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.jackrabbit.oak.Oak;
-import org.apache.jackrabbit.oak.api.CommitFailedException;
 import org.apache.jackrabbit.oak.api.ContentRepository;
-import org.apache.jackrabbit.oak.api.PropertyState;
 import org.apache.jackrabbit.oak.api.Type;
 import org.apache.jackrabbit.oak.plugins.index.IndexConstants;
-import org.apache.jackrabbit.oak.plugins.index.IndexEditorProvider;
-import org.apache.jackrabbit.oak.plugins.index.IndexUpdateCallback;
 import org.apache.jackrabbit.oak.plugins.index.IndexUpdateProvider;
 import org.apache.jackrabbit.oak.plugins.nodetype.write.InitialContent;
 import org.apache.jackrabbit.oak.plugins.segment.SegmentNodeStore;
@@ -37,7 +31,6 @@ import org.apache.jackrabbit.oak.query.ast.Operator;
 import org.apache.jackrabbit.oak.query.ast.SelectorImpl;
 import org.apache.jackrabbit.oak.query.index.FilterImpl;
 import org.apache.jackrabbit.oak.spi.commit.CommitInfo;
-import org.apache.jackrabbit.oak.spi.commit.Editor;
 import org.apache.jackrabbit.oak.spi.commit.EditorHook;
 import org.apache.jackrabbit.oak.spi.lifecycle.RepositoryInitializer;
 import org.apache.jackrabbit.oak.spi.query.Cursor;
@@ -45,9 +38,7 @@ import org.apache.jackrabbit.oak.spi.query.Filter;
 import org.apache.jackrabbit.oak.spi.query.IndexRow;
 import org.apache.jackrabbit.oak.spi.query.PropertyValues;
 import org.apache.jackrabbit.oak.spi.query.QueryIndex;
-import org.apache.jackrabbit.oak.spi.query.QueryIndexProvider;
 import org.apache.jackrabbit.oak.spi.security.OpenSecurityProvider;
-import org.apache.jackrabbit.oak.spi.state.ChildNodeEntry;
 import org.apache.jackrabbit.oak.spi.state.NodeBuilder;
 import org.apache.jackrabbit.oak.spi.state.NodeState;
 import org.apache.jackrabbit.oak.spi.state.NodeStore;
@@ -60,15 +51,13 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.apache.jackrabbit.JcrConstants.JCR_PRIMARYTYPE;
-import static org.apache.jackrabbit.oak.plugins.index.IndexConstants.INDEX_DEFINITIONS_NAME;
-import static org.apache.jackrabbit.oak.plugins.index.IndexConstants.TYPE_PROPERTY_NAME;
 import static org.apache.jackrabbit.oak.plugins.memory.EmptyNodeState.EMPTY_NODE;
 import static org.mockito.Mockito.mock;
 
 /**
  * Testcase for {@link com.github.tteofili.apacheconeu14.oak.search.es.ESIndexEditor}
  */
-public class ESIndexIT {
+public class ESIndexIntegrationTest {
 
     protected NodeStore store;
     protected EditorHook hook;
@@ -77,14 +66,7 @@ public class ESIndexIT {
     @Before
     public void setUp() throws Exception {
         store = new SegmentNodeStore();
-        hook = new EditorHook(new IndexUpdateProvider(
-                new IndexEditorProvider() {
-                    @Override
-                    public Editor getIndexEditor(@Nonnull String type, @Nonnull NodeBuilder nodeBuilder, @Nonnull NodeState nodeState,
-                                                 @Nonnull IndexUpdateCallback indexUpdateCallback) throws CommitFailedException {
-                        return "es".equals(type) ? new ESIndexEditor(ESUtils.getClient()) : null;
-                    }
-                }));
+        hook = new EditorHook(new IndexUpdateProvider(new ESIndexEditorProvider()));
         Oak oak = new Oak().with(new InitialContent())
                 .with(new OpenSecurityProvider())
                 .with(new RepositoryInitializer() {
@@ -104,28 +86,7 @@ public class ESIndexIT {
                         }
                     }
                 })
-                .with(new QueryIndexProvider() {
-                    @Nonnull
-                    @Override
-                    public List<? extends QueryIndex> getQueryIndexes(NodeState nodeState) {
-                        List<QueryIndex> tempIndexes = new ArrayList<QueryIndex>();
-                        NodeState definitions = nodeState.getChildNode(INDEX_DEFINITIONS_NAME);
-                        for (ChildNodeEntry entry : definitions.getChildNodeEntries()) {
-                            NodeState definition = entry.getNodeState();
-                            PropertyState type = definition.getProperty(TYPE_PROPERTY_NAME);
-                            if (type != null
-                                    && "es".equals(type.getValue(Type.STRING))) {
-                                try {
-                                    tempIndexes.add(new ESQueryIndex(ESUtils.getClient()));
-                                } catch (Exception e) {
-                                    // do nothing
-                                }
-
-                            }
-                        }
-                        return tempIndexes;
-                    }
-                })
+                .with(new ESQueryIndexProvider())
                 .with(hook);
         repository = oak
                 .createContentRepository();

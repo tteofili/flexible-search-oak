@@ -23,12 +23,12 @@
     <parent>
         <groupId>org.apache.jackrabbit</groupId>
         <artifactId>oak-parent</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
     </parent>
 
     <groupId>com.github.tteofili</groupId>
     <artifactId>flexible-search-oak</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
     
     <name>oak search demo code</name>
     <description>Demo code for "Flexible search in Apache Jackrabbit Oak" talk</description>
@@ -104,13 +104,13 @@
         <dependency>
             <groupId>org.apache.jackrabbit</groupId>
             <artifactId>oak-core</artifactId>
-            <version>${project.version}</version>
+            <version>1.1.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.jackrabbit</groupId>
             <artifactId>oak-commons</artifactId>
-            <version>${project.version}</version>
+            <version>1.1.1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -124,6 +124,17 @@
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
             <version>1.4.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-classification</artifactId>
+            <version>4.10.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>4.10.2</version>
         </dependency>
 
         <dependency>

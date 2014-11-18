@@ -26,6 +26,7 @@ import org.apache.jackrabbit.oak.spi.state.NodeState;
  * Demo code for indexing data for NLS
  */
 public class NLSIndexEditor implements IndexEditor {
+
     @Override
     public void enter(NodeState nodeState, NodeState nodeState2) throws CommitFailedException {
 
