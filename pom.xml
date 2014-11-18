@@ -47,6 +47,7 @@
                         <Export-Package>
                             !*
                         </Export-Package>
+                        <Embed-Dependency>elasticsearch</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

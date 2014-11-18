@@ -17,8 +17,6 @@
 package com.github.tteofili.apacheconeu14.oak.search.es;
 
 import javax.annotation.Nonnull;
-import javax.jcr.NoSuchWorkspaceException;
-import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +25,6 @@ import org.apache.jackrabbit.oak.Oak;
 import org.apache.jackrabbit.oak.api.CommitFailedException;
 import org.apache.jackrabbit.oak.api.ContentRepository;
 import org.apache.jackrabbit.oak.api.PropertyState;
-import org.apache.jackrabbit.oak.api.Root;
 import org.apache.jackrabbit.oak.api.Type;
 import org.apache.jackrabbit.oak.plugins.index.IndexConstants;
 import org.apache.jackrabbit.oak.plugins.index.IndexEditorProvider;
@@ -140,7 +137,7 @@ public class ESIndexIT {
     }
 
     @Test
-    public void testSingleNodeCreation() throws Exception {
+    public void testNodeIndexingAndQuery() throws Exception {
         NodeState root = EMPTY_NODE;
 
         NodeBuilder builder = root.builder();

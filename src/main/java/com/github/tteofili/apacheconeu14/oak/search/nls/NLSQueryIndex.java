@@ -18,6 +18,7 @@ package com.github.tteofili.apacheconeu14.oak.search.nls;
 
 import org.apache.jackrabbit.oak.spi.query.Cursor;
 import org.apache.jackrabbit.oak.spi.query.Filter;
+import org.apache.jackrabbit.oak.spi.query.IndexRow;
 import org.apache.jackrabbit.oak.spi.query.QueryIndex;
 import org.apache.jackrabbit.oak.spi.state.NodeState;
 
@@ -25,14 +26,40 @@ import org.apache.jackrabbit.oak.spi.state.NodeState;
  * Sample query index for NLS
  */
 public class NLSQueryIndex implements QueryIndex {
+
+    private static final String NATIVE_NLS_QUERY = "nls";
+
     @Override
     public double getCost(Filter filter, NodeState nodeState) {
-        return 0;
+        // only allow native query language
+        if (filter.getPropertyRestriction(NATIVE_NLS_QUERY) != null) {
+            return 1;
+        } else {
+            return Double.POSITIVE_INFINITY;
+        }
     }
 
     @Override
     public Cursor query(Filter filter, NodeState nodeState) {
-        return null;
+        Filter.PropertyRestriction nativeQueryRestriction = filter.getPropertyRestriction(NATIVE_NLS_QUERY);
+        String nativeQueryString = String.valueOf(nativeQueryRestriction.first.getValue(nativeQueryRestriction.first.getType()));
+
+        return new Cursor() {
+            @Override
+            public IndexRow next() {
+                return null;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return false;
+            }
+
+            @Override
+            public void remove() {
+
+            }
+        };
     }
 
     @Override
@@ -42,6 +69,6 @@ public class NLSQueryIndex implements QueryIndex {
 
     @Override
     public String getIndexName() {
-        return null;
+        return NATIVE_NLS_QUERY;
     }
 }
