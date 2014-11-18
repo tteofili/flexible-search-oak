@@ -26,15 +26,24 @@ import org.apache.jackrabbit.oak.plugins.index.IndexUpdateCallback;
 import org.apache.jackrabbit.oak.spi.commit.Editor;
 import org.apache.jackrabbit.oak.spi.state.NodeBuilder;
 import org.apache.jackrabbit.oak.spi.state.NodeState;
+import org.elasticsearch.client.Client;
 
 /**
  * provider for {@link com.github.tteofili.apacheconeu14.oak.search.es.ESIndexEditor}
  */
-@Component
+@Component(immediate = true)
 @Service(value = IndexEditorProvider.class)
 public class ESIndexEditorProvider implements IndexEditorProvider {
     @Override
     public Editor getIndexEditor(@Nonnull String type, @Nonnull NodeBuilder nodeBuilder, @Nonnull NodeState nodeState, @Nonnull IndexUpdateCallback indexUpdateCallback) throws CommitFailedException {
-        return "es".equals(type) ? new ESIndexEditor(ESUtils.getClient()) : null;
+        Thread thread = Thread.currentThread();
+        ClassLoader loader = thread.getContextClassLoader();
+        thread.setContextClassLoader(Client.class.getClassLoader());
+        try {
+            return "es".equals(type) ? new ESIndexEditor(ESUtils.getClient()) : null;
+        } finally {
+            thread.setContextClassLoader(loader);
+        }
+
     }
 }

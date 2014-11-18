@@ -62,8 +62,8 @@ public class ESIndexEditor implements IndexEditor {
 
     }
 
-    public String getPath() {
-        if (path == null) { // => parent != null
+    private String getPath() {
+        if (parent != null && name != null) {
             path = concat(parent.getPath(), name);
         }
         return path;
@@ -73,14 +73,17 @@ public class ESIndexEditor implements IndexEditor {
     public void leave(NodeState before, NodeState after) throws CommitFailedException {
         if (changed) {
             String source = jsonFromState(after);
+            try {
+                IndexResponse response = client.prepareIndex("oak", "node", getPath())
+                        .setSource(source)
+                        .execute()
+                        .actionGet();
 
-            IndexResponse response = client.prepareIndex("oak", "node", getPath())
-                    .setSource(source)
-                    .execute()
-                    .actionGet();
-
-            if (response.isCreated()) {
-                log.info("indexed doc {}", source);
+                if (response.isCreated()) {
+                    log.info("indexed doc {}", source);
+                }
+            } catch (Exception e) {
+                log.error("failed indexing {}", after);
             }
         }
     }
@@ -119,7 +122,7 @@ public class ESIndexEditor implements IndexEditor {
     }
 
     @Override
-    public Editor childNodeChanged(String s, NodeState before, NodeState after) throws CommitFailedException {
+    public Editor childNodeChanged(String name, NodeState before, NodeState after) throws CommitFailedException {
         return new ESIndexEditor(this, name);
     }
 

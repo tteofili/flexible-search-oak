@@ -19,7 +19,6 @@ package com.github.tteofili.apacheconeu14.oak.search.nls;
 import javax.annotation.Nonnull;
 
 import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.jackrabbit.oak.api.CommitFailedException;
 import org.apache.jackrabbit.oak.plugins.index.IndexEditorProvider;
@@ -35,11 +34,9 @@ import org.apache.jackrabbit.oak.spi.state.NodeState;
 @Service(value = IndexEditorProvider.class)
 public class NLSIndexEditorProvider implements IndexEditorProvider {
 
-    @Reference(target = "(component.name = org.apache.jackrabbit.oak.plugins.index.lucene.LuceneIndexEditorProvider)")
-    private IndexEditorProvider luceneEditorProvider;
-
     @Override
-    public Editor getIndexEditor(@Nonnull String type, @Nonnull NodeBuilder nodeBuilder, @Nonnull NodeState nodeState, @Nonnull IndexUpdateCallback indexUpdateCallback) throws CommitFailedException {
+    public Editor getIndexEditor(@Nonnull String type, @Nonnull NodeBuilder nodeBuilder, @Nonnull NodeState nodeState,
+                                 @Nonnull IndexUpdateCallback indexUpdateCallback) throws CommitFailedException {
         return "nls".equals(type) ? new NLSIndexEditor() : null;
     }
 }

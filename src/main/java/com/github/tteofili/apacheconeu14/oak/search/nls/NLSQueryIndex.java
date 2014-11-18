@@ -29,6 +29,12 @@ public class NLSQueryIndex implements QueryIndex {
 
     private static final String NATIVE_NLS_QUERY = "nls";
 
+    private final NLQuestionsPCFG pcfg;
+
+    public NLSQueryIndex() {
+        pcfg = new NLQuestionsPCFG();
+    }
+
     @Override
     public double getCost(Filter filter, NodeState nodeState) {
         // only allow native query language
@@ -43,6 +49,8 @@ public class NLSQueryIndex implements QueryIndex {
     public Cursor query(Filter filter, NodeState nodeState) {
         Filter.PropertyRestriction nativeQueryRestriction = filter.getPropertyRestriction(NATIVE_NLS_QUERY);
         String nativeQueryString = String.valueOf(nativeQueryRestriction.first.getValue(nativeQueryRestriction.first.getType()));
+        String purgedQuery = pcfg.filterQuestion(nativeQueryString);
+
 
         return new Cursor() {
             @Override

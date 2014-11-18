@@ -28,6 +28,7 @@ import org.apache.jackrabbit.oak.spi.query.QueryIndex;
 import org.apache.jackrabbit.oak.spi.query.QueryIndexProvider;
 import org.apache.jackrabbit.oak.spi.state.ChildNodeEntry;
 import org.apache.jackrabbit.oak.spi.state.NodeState;
+import org.elasticsearch.client.Client;
 
 import static org.apache.jackrabbit.oak.plugins.index.IndexConstants.INDEX_DEFINITIONS_NAME;
 import static org.apache.jackrabbit.oak.plugins.index.IndexConstants.TYPE_PROPERTY_NAME;
@@ -35,7 +36,7 @@ import static org.apache.jackrabbit.oak.plugins.index.IndexConstants.TYPE_PROPER
 /**
  * provider for {@link com.github.tteofili.apacheconeu14.oak.search.es.ESQueryIndex}
  */
-@Component
+@Component(immediate = true)
 @Service(value = QueryIndexProvider.class)
 public class ESQueryIndexProvider implements QueryIndexProvider {
     @Nonnull
@@ -49,7 +50,14 @@ public class ESQueryIndexProvider implements QueryIndexProvider {
             if (type != null
                     && "es".equals(type.getValue(Type.STRING))) {
                 try {
-                    tempIndexes.add(new ESQueryIndex(ESUtils.getClient()));
+                    Thread thread = Thread.currentThread();
+                    ClassLoader loader = thread.getContextClassLoader();
+                    thread.setContextClassLoader(Client.class.getClassLoader());
+                    try {
+                        tempIndexes.add(new ESQueryIndex(ESUtils.getClient()));
+                    } finally {
+                        thread.setContextClassLoader(loader);
+                    }
                 } catch (Exception e) {
                     // do nothing
                 }

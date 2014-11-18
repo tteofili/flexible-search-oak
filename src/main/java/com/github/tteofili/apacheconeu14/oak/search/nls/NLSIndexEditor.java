@@ -16,16 +16,54 @@
  */
 package com.github.tteofili.apacheconeu14.oak.search.nls;
 
+import java.io.IOException;
+import java.io.StringReader;
+
 import org.apache.jackrabbit.oak.api.CommitFailedException;
 import org.apache.jackrabbit.oak.api.PropertyState;
 import org.apache.jackrabbit.oak.plugins.index.IndexEditor;
 import org.apache.jackrabbit.oak.spi.commit.Editor;
 import org.apache.jackrabbit.oak.spi.state.NodeState;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.Term;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.apache.jackrabbit.oak.commons.PathUtils.concat;
 
 /**
  * Demo code for indexing data for NLS
  */
 public class NLSIndexEditor implements IndexEditor {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    private final String name;
+
+    private boolean changed;
+
+    private String path;
+
+    private NLSIndexEditor parent;
+
+    public NLSIndexEditor() {
+        name = null;
+        path = "/";
+    }
+
+    public NLSIndexEditor(NLSIndexEditor parent, String name) {
+        this.parent = parent;
+        this.name = name;
+        this.path = null;
+    }
+
+    private String getPath() {
+        if (parent != null && name != null) {
+            path = concat(parent.getPath(), name);
+        }
+        return path;
+    }
 
     @Override
     public void enter(NodeState nodeState, NodeState nodeState2) throws CommitFailedException {
@@ -34,36 +72,68 @@ public class NLSIndexEditor implements IndexEditor {
 
     @Override
     public void leave(NodeState nodeState, NodeState nodeState2) throws CommitFailedException {
+        if (changed) {
+            try {
+                String path = getPath();
+                Document d = makeDocument(path, nodeState);
+                if (d != null) {
+                    try {
+                        IndexUtils.getWriter().updateDocument(newPathTerm(path), d);
+                    } catch (IOException e) {
+                        log.error("could not index doc at path {}", path, e);
+                    }
+                }
+            } finally {
+                // do nothing
+            }
+        }
 
+    }
+
+    private Term newPathTerm(String path) {
+        if (!"/".equals(path) && !path.startsWith("/")) {
+            path = "/" + path;
+        }
+        return new Term("path", path);
+    }
+
+    private Document makeDocument(String path, NodeState nodeState) {
+        Document d = new Document();
+        d.add(new TextField("path", new StringReader(path)));
+        for (PropertyState property : nodeState.getProperties()) {
+            d.add(new TextField(property.getName(), new StringReader(String.valueOf(property.getValue(property.getType())))));
+        }
+        return d;
     }
 
     @Override
     public void propertyAdded(PropertyState propertyState) throws CommitFailedException {
-
+        changed = true;
     }
 
     @Override
     public void propertyChanged(PropertyState propertyState, PropertyState propertyState2) throws CommitFailedException {
-
+        changed = true;
     }
 
     @Override
     public void propertyDeleted(PropertyState propertyState) throws CommitFailedException {
-
+        changed = true;
     }
 
     @Override
-    public Editor childNodeAdded(String s, NodeState nodeState) throws CommitFailedException {
-        return null;
+    public Editor childNodeAdded(String name, NodeState nodeState) throws CommitFailedException {
+        return new NLSIndexEditor(this, name);
     }
 
     @Override
-    public Editor childNodeChanged(String s, NodeState nodeState, NodeState nodeState2) throws CommitFailedException {
-        return null;
+    public Editor childNodeChanged(String name, NodeState nodeState, NodeState nodeState2) throws CommitFailedException {
+        return new NLSIndexEditor(this, name);
     }
 
     @Override
     public Editor childNodeDeleted(String s, NodeState nodeState) throws CommitFailedException {
+        // TODO : implement this
         return null;
     }
 }
