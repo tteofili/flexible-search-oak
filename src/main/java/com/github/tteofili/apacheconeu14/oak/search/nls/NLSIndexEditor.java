@@ -25,6 +25,7 @@ import org.apache.jackrabbit.oak.plugins.index.IndexEditor;
 import org.apache.jackrabbit.oak.spi.commit.Editor;
 import org.apache.jackrabbit.oak.spi.state.NodeState;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
@@ -75,14 +76,15 @@ public class NLSIndexEditor implements IndexEditor {
     }
 
     @Override
-    public void leave(NodeState nodeState, NodeState nodeState2) throws CommitFailedException {
+    public void leave(NodeState before, NodeState after) throws CommitFailedException {
         if (changed) {
             try {
                 String path = getPath();
-                Document d = makeDocument(path, nodeState);
+                Document d = makeDocument(path, after);
                 if (d != null) {
                     try {
                         writer.updateDocument(newPathTerm(path), d);
+                        writer.commit();
                     } catch (IOException e) {
                         log.error("could not index doc at path {}", path, e);
                     }
@@ -103,7 +105,7 @@ public class NLSIndexEditor implements IndexEditor {
 
     private Document makeDocument(String path, NodeState nodeState) {
         Document d = new Document();
-        d.add(new TextField("path", new StringReader(path)));
+        d.add(new TextField("path", path, Field.Store.YES));
         for (PropertyState property : nodeState.getProperties()) {
             d.add(new TextField(property.getName(), new StringReader(String.valueOf(property.getValue(property.getType())))));
         }

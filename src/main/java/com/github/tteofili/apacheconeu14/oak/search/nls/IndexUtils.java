@@ -26,6 +26,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.NoLockFactory;
 import org.elasticsearch.common.lucene.Lucene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class IndexUtils {
             if (!path.exists()) {
                 assert path.mkdirs();
             }
-            return FSDirectory.open(path);
+            return FSDirectory.open(path, NoLockFactory.getNoLockFactory());
         } catch (IOException e) {
             log.error("could not open /tmp/nls-lucene", e);
         }

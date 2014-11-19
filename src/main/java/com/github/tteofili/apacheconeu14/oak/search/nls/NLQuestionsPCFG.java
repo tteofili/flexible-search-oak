@@ -141,7 +141,14 @@ public class NLQuestionsPCFG {
 
     private String getRightmostSubtree(ProbabilisticContextFreeGrammar.BackPointer backPointer) {
         if (backPointer.getRightTree() == null) {
-            return backPointer.toString();
+            String[] expansion = backPointer.getRule().getExpansion();
+            StringBuilder builder = new StringBuilder();
+            for (String exp : expansion) {
+                builder.append(exp);
+                builder.append(" ");
+            }
+            builder.delete(builder.length() - 1, builder.length());
+            return builder.toString();
         } else {
             return getRightmostSubtree(backPointer.getRightTree());
         }
