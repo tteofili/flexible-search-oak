@@ -20,8 +20,10 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.elasticsearch.common.lucene.Lucene;
@@ -57,9 +59,21 @@ public class IndexUtils {
         }
         try {
             cachedIndexWriter = new IndexWriter(directory, new IndexWriterConfig(Lucene.VERSION, new StandardAnalyzer()));
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("could not create index writer", e);
         }
         return cachedIndexWriter;
+    }
+
+    public static IndexSearcher getSearcher() {
+        if (directory == null) {
+            directory = openDir();
+        }
+        try {
+            return new IndexSearcher(DirectoryReader.open(directory));
+        } catch (Exception e) {
+            log.error("could not create index searcher", e);
+        }
+        return null;
     }
 }

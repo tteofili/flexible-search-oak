@@ -49,7 +49,7 @@ public class NLSQueryIndexProvider implements QueryIndexProvider {
             if (type != null
                     && "nls".equals(type.getValue(Type.STRING))) {
                 try {
-                    tempIndexes.add(new NLSQueryIndex());
+                    tempIndexes.add(new NLSQueryIndex(IndexUtils.getSearcher()));
                 } catch (Exception e) {
                     // do nothing
                 }

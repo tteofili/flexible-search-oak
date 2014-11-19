@@ -26,6 +26,7 @@ import org.apache.jackrabbit.oak.spi.commit.Editor;
 import org.apache.jackrabbit.oak.spi.state.NodeState;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ public class NLSIndexEditor implements IndexEditor {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final String name;
+    private final IndexWriter writer;
 
     private boolean changed;
 
@@ -47,15 +49,17 @@ public class NLSIndexEditor implements IndexEditor {
 
     private NLSIndexEditor parent;
 
-    public NLSIndexEditor() {
-        name = null;
-        path = "/";
-    }
-
     public NLSIndexEditor(NLSIndexEditor parent, String name) {
         this.parent = parent;
+        this.writer = parent.writer;
         this.name = name;
         this.path = null;
+    }
+
+    public NLSIndexEditor(IndexWriter writer) {
+        this.writer = writer;
+        name = null;
+        path = "/";
     }
 
     private String getPath() {
@@ -78,7 +82,7 @@ public class NLSIndexEditor implements IndexEditor {
                 Document d = makeDocument(path, nodeState);
                 if (d != null) {
                     try {
-                        IndexUtils.getWriter().updateDocument(newPathTerm(path), d);
+                        writer.updateDocument(newPathTerm(path), d);
                     } catch (IOException e) {
                         log.error("could not index doc at path {}", path, e);
                     }
