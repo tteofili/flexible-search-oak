@@ -34,9 +34,5 @@ public class NLQuestionsPCFGTest {
         assertNotNull(filteredQuestion);
         filteredQuestion = nlQuestionsPCFG.filterQuestion("who is the admin");
         assertNotNull(filteredQuestion);
-//        filteredQuestion = nlQuestionsPCFG.filterQuestion("how do you see Lucene");
-//        assertNotNull(filteredQuestion);
-//        filteredQuestion = nlQuestionsPCFG.filterQuestion("what is Lucene");
-//        assertNotNull(filteredQuestion);
     }
 }
