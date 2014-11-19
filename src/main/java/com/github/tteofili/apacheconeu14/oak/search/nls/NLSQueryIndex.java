@@ -77,17 +77,6 @@ public class NLSQueryIndex implements QueryIndex {
             final IndexSearcher searcher = IndexUtils.getSearcher();
 
             if (searcher != null) {
-                try {
-                    classifier.train(SlowCompositeReaderWrapper.wrap(searcher.getIndexReader()), "jcr:title", "jcr:primaryType", new StandardAnalyzer());
-                } catch (IOException e) {
-                    // error in training
-                }
-
-                try {
-                    classifier.train(SlowCompositeReaderWrapper.wrap(searcher.getIndexReader()), "jcr:title", "jcr:primaryType", new StandardAnalyzer());
-                } catch (IOException e) {
-                    // error in training
-                }
 
                 Filter.PropertyRestriction nativeQueryRestriction = filter.getPropertyRestriction(NATIVE_NLS_QUERY);
                 String nativeQueryString = String.valueOf(nativeQueryRestriction.first.getValue(nativeQueryRestriction.first.getType()));
@@ -103,8 +92,10 @@ public class NLSQueryIndex implements QueryIndex {
                     booleanClauses.add(new BooleanClause(new TermQuery(new Term("jcr:description", purgedQuery)), BooleanClause.Occur.SHOULD));
                     booleanClauses.add(new BooleanClause(new TermQuery(new Term("text", purgedQuery)), BooleanClause.Occur.SHOULD));
                 }
+
                 // infer "class" of the query and boost based on that
                 try {
+                    initializeClassifier(searcher);
                     ClassificationResult<BytesRef> result = null;
                     try {
                         result = classifier.assignClass(nativeQueryString);
@@ -170,6 +161,14 @@ public class NLSQueryIndex implements QueryIndex {
             thread.setContextClassLoader(loader);
         }
         return null;
+    }
+
+    private void initializeClassifier(IndexSearcher searcher) {
+        try {
+            classifier.train(SlowCompositeReaderWrapper.wrap(searcher.getIndexReader()), "jcr:title", "jcr:primaryType", new StandardAnalyzer());
+        } catch (IOException e) {
+            // error in training
+        }
     }
 
     @Override
